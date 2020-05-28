@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { SettingsService } from '../../../core/settings/settings.service';
-import { ThemeOptions } from '../../../core/settings/store/settings.model';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
@@ -9,11 +8,6 @@ import { AuthService } from '../../../core/auth/auth.service';
   styleUrls: ['./dashboard-root.component.scss']
 })
 export class DashboardRootComponent {
-  themeOptions = [
-    { value: ThemeOptions.LIGHT_THEME, viewValue: 'Light' },
-    { value: ThemeOptions.DARK_THEME, viewValue: 'Dark' },
-  ];
-
   theme$ = this.settingsService.theme$;
   isLoggedIn$ = this.authService.isLoggedIn$;
   currentUser$ = this.authService.currentUser$;
@@ -21,12 +15,17 @@ export class DashboardRootComponent {
     {
       path: ['/home'],
       text: 'global.experiment.title',
-      iconType: 'files'
+      iconType: 'assignment'
+    },
+    {
+      path: ['/featureFlags'],
+      text: 'Feature flags',
+      iconType: 'toggle_on'
     },
     {
       path: ['/users'],
       text: 'global.experiment-user.title',
-      iconType: 'user-group'
+      iconType: 'supervisor_account'
     },
     {
       path: ['/logs'],
@@ -36,10 +35,6 @@ export class DashboardRootComponent {
   ];
 
   constructor(private settingsService: SettingsService, private authService: AuthService) {}
-
-  changeTheme(theme) {
-    this.settingsService.changeTheme(theme);
-  }
 
   logout() {
     this.authService.authLogout();

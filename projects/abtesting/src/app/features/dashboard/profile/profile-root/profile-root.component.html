@@ -1,8 +1,8 @@
-<div class="profile-container">
+<mat-card class="profile-container">
   <h1 class="ft-32-700 title">{{ 'profile.heading.text' | translate }}</h1>
   <span class="ft-16-400 subtitle" [innerHTML]="'profile.sub-heading.text' | translate"></span>
 
-  <div class="profile-wrapper">
+  <mat-card class="profile-wrapper">
     <div
       class="personal-information"
       *ngIf="currentUser"
@@ -10,27 +10,38 @@
     >
       <img [src]="currentUser?.imageUrl" class="profile-pic" />
       <div class="user-info">
-        <span class="ft-22-700 name">{{ (currentUser?.firstName || '') + ' ' + (currentUser?.lastName || '') }}</span>
+        <span class="ft-22-700">{{ (currentUser?.firstName || '') + ' ' + (currentUser?.lastName || '') }}</span>
         <span class="ft-12-600 email">{{ '( ' + currentUser?.email + ' )' }}</span>
         <span class="ft-12-600 role">{{ currentUser?.role | titlecase }}</span>
       </div>
-      <mat-slide-toggle
-        *ngIf="(permissions$ | async)?.manageRoles.update"
-        class="ft-16-600 authentication-toggle"
-        color="primary"
-        [checked]="toCheckAuth$ | async"
-        (change)="changeAuthenticationFlag($event)"
-        labelPosition="before"
-      >
-        {{ 'profile.authorization.text' | translate }}
+      <div class="toggle-container">
+        <mat-slide-toggle
+          *ngIf="(permissions$ | async)?.manageRoles.update"
+          class="ft-16-600 toggle"
+          color="primary"
+          [checked]="toCheckAuth$ | async"
+          (change)="changeAuthenticationFlag($event)"
+          labelPosition="before"
+        >
+          {{ 'profile.authorization.text' | translate }}
+        </mat-slide-toggle>
+        <mat-slide-toggle
+          class="ft-16-600"
+          color="primary"
+          [checked]="(theme$ | async) === ThemeOptions.DARK_THEME"
+          labelPosition="before"
+          (change)="changeTheme($event)"
+        >
+        {{ 'theme.dark-mode.text' | translate }}
       </mat-slide-toggle>
+      </div>
     </div>
     <div class="role-wrapper" *ngIf="(permissions$ | async)?.manageRoles.update">
       <div class="header">
         <h3 class="header-title">{{ 'profile.manage-roles.heading.text' | translate }}</h3>
         <button class="ft-14-700" mat-flat-button color="primary" (click)="openNewUserModal()">
-          <app-shared-icons class="icon" [iconType]="'plus'"></app-shared-icons>
-          {{ 'profile.add-user.text' | translate }}
+          <mat-icon>add</mat-icon>
+          <span>{{ 'profile.add-user.text' | translate }}</span>
         </button>
       </div>
       <div>
@@ -58,7 +69,12 @@
         </mat-form-field>
       </div>
       <mat-progress-bar class="spinner" mode="indeterminate" *ngIf="isUsersLoading"></mat-progress-bar>
-      <div #usersTable class="users-list-container">
+      <div
+        scroll
+        (scrolled)="fetchUsersOnScroll()"
+        #usersTable
+        class="users-list-container"
+      >
         <form [formGroup]="userRoleForm">
           <table
             class="users-list"
@@ -131,12 +147,13 @@
             <ng-container matColumnDef="edit">
               <th class="ft-12-700" mat-header-cell *matHeaderCellDef></th>
               <td class="ft-12-600" mat-cell *matCellDef="let user; let index = index">
-                <app-shared-icons
+                <mat-icon
                   *ngIf="editMode !== index; else saveBtnTemplate"
-                  [iconType]="'edit'"
                   class="icon"
                   (click)="editPermission(user, index)"
-                ></app-shared-icons>
+                >
+                  create
+                </mat-icon>
 
                 <ng-template #saveBtnTemplate>
                   <button
@@ -158,5 +175,5 @@
         </form>
       </div>
     </div>
-  </div>
-</div>
+  </mat-card>
+</mat-card>

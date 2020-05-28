@@ -9,6 +9,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import { NewUserComponent } from '../components/modals/new-user/new-user.component';
 import { SettingsService } from '../../../../core/settings/settings.service';
 import { debounceTime } from 'rxjs/operators';
+import { ThemeOptions } from '../../../../core/settings/store/settings.model';
 
 @Component({
   selector: 'app-profile-root',
@@ -17,6 +18,7 @@ import { debounceTime } from 'rxjs/operators';
 })
 export class ProfileRootComponent implements OnInit, OnDestroy {
   permissions$: Observable<UserPermission>;
+  theme$ = this.settingsService.theme$;
   displayedUsersColumns: string[] = ['firstName', 'lastName', 'email', 'role', 'edit'];
   userRoleForm: FormGroup;
   editMode = null;
@@ -27,6 +29,7 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
   isUsersLoadingSub: Subscription;
   currentUser: User;
   currentUserSub: Subscription;
+  isAllUsersFetched = false;
   isAllUsersFetchedSub: Subscription;
   searchString: string;
   toCheckAuth$ = this.settingsService.toCheckAuth$;
@@ -41,7 +44,8 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
 
   @ViewChild('usersTable', { static: false }) set content(content: ElementRef) {
     if (content) {
-       this.fetchUsersOnScroll(content);
+      const windowHeight = window.innerHeight;
+      content.nativeElement.style.maxHeight = (windowHeight - 498) + 'px';
     }
  }
  // Used to prevent execution of searchInput setter multiple times
@@ -88,6 +92,10 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
         this.applyFilter(this.searchString);
       }
     });
+
+    this.isAllUsersFetchedSub = this.usersService.isAllUsersFetched().subscribe(
+      value => this.isAllUsersFetched = value
+    );
   }
 
   // Modify angular material's table's default search behavior
@@ -166,26 +174,9 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
     this.usersService.setSearchString(searchString);
   }
 
-  fetchUsersOnScroll(usersTableContainer) {
-    if (!this.isAllUsersFetchedSub) {
-      const windowHeight = window.innerHeight;
-      usersTableContainer.nativeElement.style.maxHeight = (windowHeight - 523) + 'px';
-      let isAllUsersFetched = false;
-      this.isAllUsersFetchedSub = this.usersService.isAllUsersFetched().subscribe(
-        value => isAllUsersFetched = value
-      );
-      // TODO: Make a common logic for this
-      fromEvent(usersTableContainer.nativeElement, 'scroll').pipe(debounceTime(500)).subscribe(value => {
-        if (!isAllUsersFetched) {
-          const height = usersTableContainer.nativeElement.clientHeight;
-          const scrollHeight = usersTableContainer.nativeElement.scrollHeight - height;
-          const scrollTop = usersTableContainer.nativeElement.scrollTop;
-          const percent = Math.floor(scrollTop / scrollHeight * 100);
-          if (percent > 80) {
-            this.usersService.fetchUsers();
-          }
-        }
-      });
+  fetchUsersOnScroll() {
+    if (!this.isAllUsersFetched) {
+      this.usersService.fetchUsers();
     }
   }
 
@@ -193,6 +184,11 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
     this.usersService.setSortingType(event.direction ? event.direction.toUpperCase() : null);
     this.usersService.setSortKey(event.direction ? event.active : null);
     this.usersService.fetchUsers(true);
+  }
+
+  changeTheme(event) {
+    const theme = event.checked ? ThemeOptions.DARK_THEME : ThemeOptions.LIGHT_THEME;
+    this.settingsService.changeTheme(theme);
   }
 
   ngOnDestroy() {
@@ -210,5 +206,9 @@ export class ProfileRootComponent implements OnInit, OnDestroy {
 
   get UserRole() {
     return UserRole;
+  }
+
+  get ThemeOptions() {
+    return ThemeOptions;
   }
 }
