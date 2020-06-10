@@ -1,0 +1,43 @@
+.queries-container {
+  .search-input {
+    line-height: 20px;
+  }
+
+  .queries-table-container {
+    overflow: auto;
+
+    table {
+      width: 100%;
+
+      .mat-header-cell {
+        padding-right: 10px;
+      }
+
+      .mat-cell {
+        position: relative;
+        padding-right: 10px;
+
+        &.mat-column-id,
+        &.mat-column-execute {
+          width: 10%;
+        }
+
+        &.mat-column-metric {
+          width: 35%;
+        }
+
+        &.mat-column-experimentName {
+          width: 25%;
+        }
+
+        &.mat-column-operation {
+          width: 20%;
+        }
+      }
+
+      .icon:hover {
+        cursor: pointer;
+      }
+    }
+  }
+}

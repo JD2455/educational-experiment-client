@@ -23,10 +23,9 @@ import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime';
 import { ExperimentPostConditionComponent } from './components/experiment-post-condition/experiment-post-condition.component';
 import { DeleteExperimentComponent } from './components/modal/delete-experiment/delete-experiment.component';
 import { TableRowComponent } from './components/table-row/table-row.component';
-import { ExperimentMetricComponent } from './components/experiment-metric/experiment-metric.component';
-import { TreeNodeDialogComponent } from './components/modal/tree-node-dialog/tree-node-dialog.component';
-import { MetricModalComponent } from './components/modal/metric-modal/metric-modal.component';
-import { MetricCommonComponent } from './components/metric-common/metric-common.component';
+import { QueriesModalComponent } from './components/modal/queries-modal/queries-modal.component';
+import { CreateQueryComponent } from './components/create-query/create-query.component';
+import { OperationPipe } from '../../../shared/pipes/operation.pipe';
 
 @NgModule({
   declarations: [
@@ -45,10 +44,8 @@ import { MetricCommonComponent } from './components/metric-common/metric-common.
     ExperimentPostConditionComponent,
     DeleteExperimentComponent,
     TableRowComponent,
-    ExperimentMetricComponent,
-    TreeNodeDialogComponent,
-    MetricModalComponent,
-    MetricCommonComponent,
+    QueriesModalComponent,
+    CreateQueryComponent,
   ],
   imports: [
     CommonModule,
@@ -60,14 +57,13 @@ import { MetricCommonComponent } from './components/metric-common/metric-common.
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
   ],
-  providers: [],
+  providers: [OperationPipe],
   entryComponents: [
     NewExperimentComponent,
     ExperimentStatusComponent,
     PostExperimentRuleComponent,
     DeleteExperimentComponent,
-    TreeNodeDialogComponent,
-    MetricModalComponent
+    QueriesModalComponent
   ]
 })
 export class HomeModule {}

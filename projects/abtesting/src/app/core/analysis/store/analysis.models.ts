@@ -5,25 +5,22 @@ export {
   OPERATION_TYPES
 };
 
-export interface TreeData {
-  id: number;
-  key: string;
-  children: TreeData[];
-}
+export const METRICS_JOIN_TEXT = '@__@';
 
-export interface IQueryBuilder {
-  experimentId: string;
-  metric: string[];
-  operationType: OPERATION_TYPES;
-  timeRange?: {
-    from: string,
-    to: string ,
-  }
+export interface MetricUnit {
+  key: string;
+  children: MetricUnit[];
 }
 
 export interface AnalysisState {
-  isAnalysisLoading: boolean;
-  data: any
+  isMetricsLoading: boolean;
+  isQueriesLoading: boolean;
+  isQueryExecuting: boolean;
+  metrics: MetricUnit[];
+  metricsFilter: string;
+  queries: any[];
+  queriesFilter: string;
+  queryResult: any;
 }
 
 export interface State extends AppState {
