@@ -24,6 +24,9 @@ import { LogsModule } from './logs/logs.module';
 import { ExperimentUsersModule } from './experiment-users/experiment-users.module';
 import { PreviewUsersModule } from './preview-users/preview-users.module';
 import { UsersModule } from './users/users.module';
+import { FeatureFlagsModule } from './feature-flags/feature-flags.module';
+import { HttpAuthInterceptor } from './http-interceptors/http-auth.interceptor';
+import { AnalysisModule } from './analysis/analysis.module';
 
 export {
   TitleService,
@@ -51,6 +54,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     ExperimentUsersModule,
     PreviewUsersModule,
     UsersModule,
+    FeatureFlagsModule,
+    AnalysisModule,
 
     // ngrx
     StoreModule.forRoot(reducers, { metaReducers }),
@@ -74,6 +79,7 @@ export function HttpLoaderFactory(http: HttpClient) {
   declarations: [],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: HttpAuthInterceptor, multi: true },
     { provide: ErrorHandler, useClass: AppErrorHandler },
     { provide: RouterStateSerializer, useClass: CustomSerializer }
   ],

@@ -1,4 +1,4 @@
-<div class="experiments-list-container">
+<mat-card class="experiments-list-container">
   <div class="header">
     <div>
       <mat-form-field class="filter-options">
@@ -31,12 +31,17 @@
       (click)="openNewExperimentDialog()"
       *ngIf="(permissions$ | async)?.experiments.create"
     >
-      <app-shared-icons class="icon" [iconType]="'plus'"></app-shared-icons>
-      {{ 'home.experiment.add-experiment.text' | translate }}
+      <mat-icon>add</mat-icon>
+      <span>{{ 'home.experiment.add-experiment.text' | translate }}</span>
     </button>
   </div>
 
-  <div class="experiment-list-table-container" #tableContainer>
+  <div
+    scroll
+    (scrolled)="fetchExperimentOnScroll()"
+    class="experiment-list-table-container"
+    #tableContainer
+  >
     <mat-progress-bar class="spinner" mode="indeterminate" *ngIf="isLoadingExperiment$ | async"></mat-progress-bar>
     <table
       class="experiment-list"
@@ -68,7 +73,7 @@
             {{ experiment.description }}
           </span>
           <ng-template #experimentDescription>
-            <span class="experiment-description" [matTooltip]="experiment.description" matTooltipPosition="above">
+            <span class="experiment-description ft-10-400" [matTooltip]="experiment.description" matTooltipPosition="above">
               {{ experiment.description | truncate: 35 }}
             </span>
           </ng-template>
@@ -147,14 +152,14 @@
             <ng-container *ngFor="let context of experiment.context; let contextIndex = index">
               <mat-chip
                 *ngIf="contextIndex < 2; else moreContextTemplate"
-                class="chip ft-12-400"
+                class="chip ft-12-600"
                 (click)="filterExperimentByChips(context, ExperimentSearchKey.CONTEXT)"
               >
                 {{ context }}
               </mat-chip>
               <ng-template #moreContextTemplate>
                 <mat-chip
-                  class="chip ft-12-400"
+                  class="chip ft-12-600"
                   *ngIf="isAllChipsVisible(experiment.id, 'contextVisibility')"
                   (click)="filterExperimentByChips(context, ExperimentSearchKey.CONTEXT)"
                 >
@@ -164,7 +169,7 @@
             </ng-container>
             <mat-chip
               *ngIf="experiment.context.length > 2 && !isAllChipsVisible(experiment.id, 'contextVisibility')"
-              class="chip ft-12-400"
+              class="chip ft-12-600"
               (click)="setChipsVisible(experiment.id, 'contextVisibility')"
             >
               {{ '+' + (experiment.context.length - 2) }}
@@ -181,17 +186,17 @@
         </th>
         <td class="ft-12-600" mat-cell *matCellDef="let experiment">
           <mat-chip-list>
-            <ng-container *ngFor="let tag of experiment.tags; let tagIndex = index">
+            <ng-container *ngFor="let tag of experiment?.tags; let tagIndex = index">
               <mat-chip
                 *ngIf="tagIndex < 2; else moreTagsTemplate"
-                class="chip ft-12-400"
+                class="chip ft-12-600"
                 (click)="filterExperimentByChips(tag, ExperimentSearchKey.TAG)"
               >
                 {{ tag }}
               </mat-chip>
               <ng-template #moreTagsTemplate>
                 <mat-chip
-                  class="chip ft-12-400"
+                  class="chip ft-12-600"
                   *ngIf="isAllChipsVisible(experiment.id, 'tagsVisibility')"
                   (click)="filterExperimentByChips(tag, ExperimentSearchKey.TAG)"
                 >
@@ -200,8 +205,8 @@
               </ng-template>
             </ng-container>
             <mat-chip
-              *ngIf="experiment.tags.length > 2 && !isAllChipsVisible(experiment.id, 'tagsVisibility')"
-              class="chip ft-12-400"
+              *ngIf="experiment.tags?.length > 2 && !isAllChipsVisible(experiment.id, 'tagsVisibility')"
+              class="chip ft-12-600"
               (click)="setChipsVisible(experiment.id, 'tagsVisibility')"
             >
               {{ '+' + (experiment.tags.length - 2) }}
@@ -240,4 +245,4 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
   </div>
-</div>
+</mat-card>

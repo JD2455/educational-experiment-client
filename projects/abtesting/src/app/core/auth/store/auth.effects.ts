@@ -3,8 +3,8 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as authActions from './auth.actions';
 import * as experimentUserActions from '../../experiment-users/store/experiment-users.actions';
 import * as experimentActions from '../../experiments/store/experiments.actions';
-import * as previewUsersActions from '../../preview-users/store/preview-users.actions';
 import * as usersActions from '../../users/store/users.actions';
+import * as analysisActions from '../../analysis/store/analysis.actions';
 import * as settingsActions from '../../settings/store/settings.actions';
 import { tap, map, filter, withLatestFrom, catchError, switchMap } from 'rxjs/operators';
 import { AppState } from '../../core.module';
@@ -126,14 +126,14 @@ export class AuthEffects {
         filter(user => !!user.email),
         switchMap((user: User) => {
           const actions = [
-            experimentActions.actionGetExperiments({ fromStarting: true }),
-            previewUsersActions.actionFetchPreviewUsers(),
             experimentUserActions.actionFetchExcludedUsers(),
             experimentUserActions.actionFetchExcludedGroups(),
             experimentActions.actionFetchAllPartitions(),
-            usersActions.actionFetchUsers(),
-            experimentActions.actionFetchExperimentContext(),
-            settingsActions.actionGetToCheckAuth()
+            usersActions.actionFetchUsers({ fromStarting: true }),
+            settingsActions.actionGetSetting(),
+            analysisActions.actionFetchMetrics(),
+            // TODO: Analysis query
+            // analysisActions.actionFetchQueries()
           ];
           // Set theme from localstorage if exist
           this.settingsService.setLocalStorageTheme();

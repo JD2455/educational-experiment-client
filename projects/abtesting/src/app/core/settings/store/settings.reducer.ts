@@ -5,20 +5,22 @@ import { Action, createReducer, on } from '@ngrx/store';
 export const initialState: SettingsState = {
   theme: ThemeOptions.LIGHT_THEME,
   toCheckAuth: null,
+  toFilterMetric: null,
 };
 
 const reducer = createReducer(
   initialState,
   on(
     SettingsActions.actionChangeTheme,
-    (state, action) => ({ ...state, ...action })
+    (state, { theme }) => ({ ...state, theme })
   ),
   on(
-    SettingsActions.actionSetToCheckAuthSuccess,
-    SettingsActions.actionGetToCheckAuthSuccess,
-    (state, { toCheckAuth }) => ({
+    SettingsActions.actionSetSettingSuccess,
+    SettingsActions.actionGetSettingSuccess,
+    (state, { setting }) => ({
       ...state,
-      toCheckAuth
+      toCheckAuth: setting && (setting as any).toCheckAuth || false,
+      toFilterMetric: setting && (setting as any).toFilterMetric || false
     })
   )
 );

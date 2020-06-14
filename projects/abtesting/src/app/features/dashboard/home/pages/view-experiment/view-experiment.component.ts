@@ -17,6 +17,7 @@ import { AuthService } from '../../../../../core/auth/auth.service';
 import { Router } from '@angular/router';
 import * as clonedeep from 'lodash.clonedeep';
 import { ExperimentStatePipeType } from '../../../../../shared/pipes/experiment-state.pipe';
+import { QueriesModalComponent } from '../../components/modal/queries-modal/queries-modal.component';
 
 // Used in view-experiment component only
 enum DialogType {
@@ -35,6 +36,7 @@ export class ViewExperimentComponent implements OnInit, OnDestroy {
   permissionsSub: Subscription;
   experiment: ExperimentVM;
   experimentSub: Subscription;
+
   displayedConditionColumns: string[] = ['no', 'twoCharacterId', 'conditionCode', 'assignmentWeight', 'description'];
   displayedPartitionColumns: string[] = ['no', 'twoCharacterId', 'partitionPoint', 'partitionId'];
 
@@ -88,8 +90,18 @@ export class ViewExperimentComponent implements OnInit, OnDestroy {
     });
   }
 
+  openQueriesModal() {
+    const dialogRef = this.dialog.open(QueriesModalComponent, {
+      panelClass: 'queries-modal',
+      data: { experiment: clonedeep(this.experiment) }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // Add code of further actions after deleting experiment
+    });
+  }
+
   exportExperimentInfo(experimentId: string, experimentName: string) {
-    // TODO: Find a better way for this
     this.experimentService.exportExperimentInfo(experimentId, experimentName);
   }
 

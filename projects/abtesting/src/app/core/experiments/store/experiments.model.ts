@@ -129,9 +129,10 @@ export interface Experiment {
   group: string;
   conditions: ExperimentCondition[];
   partitions: ExperimentPartition[];
+  queries: any[];
 }
 
-export const NUMBER_OF_EXPERIMENTS = 10;
+export const NUMBER_OF_EXPERIMENTS = 20;
 
 export interface ExperimentPaginationParams {
   skip: number;
