@@ -5,14 +5,18 @@ import { AnalysisRoutingModule } from './analysis-routing.module';
 import { AnalysisRootComponent } from './analysis-root/analysis-root.component';
 import { SharedModule } from '../../../shared/shared.module';
 import { MetricsComponent } from './components/metrics/metrics.component';
-import { QueriesComponent } from './components/queries/queries.component';
+import { DeleteMetricComponent } from './components/modal/delete-metric/delete-metric.component';
+import { AddMetricsComponent } from './components/modal/add-metrics/add-metrics.component';
+import { NgJsonEditorModule } from 'ang-jsoneditor';
 
 @NgModule({
-  declarations: [AnalysisRootComponent, MetricsComponent, QueriesComponent],
+  declarations: [AnalysisRootComponent, MetricsComponent, DeleteMetricComponent, AddMetricsComponent],
   imports: [
     CommonModule,
     AnalysisRoutingModule,
-    SharedModule
-  ]
+    SharedModule,
+    NgJsonEditorModule
+  ],
+  entryComponents: [DeleteMetricComponent, AddMetricsComponent]
 })
 export class AnalysisModule { }

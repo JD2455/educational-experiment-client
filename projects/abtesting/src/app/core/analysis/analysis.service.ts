@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AppState } from '../core.module';
 import { Store, select } from '@ngrx/store';
-import { selectMetrics, selectQueries, selectIsMetricsLoading, selectIsQueriesLoading, selectQueryResult, selectIsQueryExecuting } from './store/analysis.selectors';
+import { selectMetrics, selectIsMetricsLoading, selectQueryResult, selectIsQueryExecuting } from './store/analysis.selectors';
 import * as AnalysisActions from './store/analysis.actions';
-import { Query } from './store/analysis.models';
+import { UpsertMetrics } from './store/analysis.models';
 
 @Injectable()
 export class AnalysisService {
@@ -13,34 +13,53 @@ export class AnalysisService {
   ) {}
 
   isMetricsLoading$ = this.store$.pipe(select(selectIsMetricsLoading));
-  isQueriesLoading$ = this.store$.pipe(select(selectIsQueriesLoading));
   isQueryExecuting$ = this.store$.pipe(select(selectIsQueryExecuting));
   allMetrics$ = this.store$.pipe(select(selectMetrics));
-  allQueries$ = this.store$.pipe(select(selectQueries));
   queryResult$ = this.store$.pipe(select(selectQueryResult));
 
   setMetricsFilterValue(filterString: string) {
     this.store$.dispatch(AnalysisActions.actionSetMetricsFilterValue({ filterString }));
   }
 
-  setQueriesFilterValue(filterString: string) {
-    this.store$.dispatch(AnalysisActions.actionSetQueriesFilterValue({ filterString }));
+  upsertMetrics(metrics: UpsertMetrics) {
+    this.store$.dispatch(AnalysisActions.actionUpsertMetrics({ metrics }));
+  }
+
+  deleteMetric(key: string) {
+    this.store$.dispatch(AnalysisActions.actionDeleteMetric({ key }));
   }
 
   executeQuery(queryId: string) {
     this.store$.dispatch(AnalysisActions.actionExecuteQuery({ queryId }));
   }
 
-  // TODO: Remove query related functions
-  saveQuery(query: Query) {
-    this.store$.dispatch(AnalysisActions.actionSaveQuery({ query }));
-  }
-
-  deleteQuery(queryId: string) {
-    this.store$.dispatch(AnalysisActions.actionDeleteQuery({ queryId }));
-  }
-
   setQueryResult(queryResult: any) {
     this.store$.dispatch(AnalysisActions.actionSetQueryResult({ queryResult }));
+  }
+
+  // Used to get path from root to leaf node
+  findParents(node, searchForKey) {
+    // If current node name matches the search name, return
+    // empty array which is the beginning of our parent result
+    if (node.id === searchForKey) {
+      return [];
+    }
+
+    // Otherwise, if this node has a tree field/value, recursively
+    // process the nodes in this tree array
+    if (Array.isArray(node.children)) {
+
+      for (const treeNode of node.children) {
+
+        // Recursively process treeNode. If an array result is
+        // returned, then add the treeNode.key to that result
+        // and return recursively
+        const childResult = this.findParents(treeNode, searchForKey)
+
+        if (Array.isArray(childResult)) {
+          return [ treeNode.key ].concat( childResult );
+        }
+      }
+    }
   }
 }

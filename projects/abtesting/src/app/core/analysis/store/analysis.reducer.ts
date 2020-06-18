@@ -1,23 +1,21 @@
 import { createReducer, Action, on } from '@ngrx/store';
-import { AnalysisState } from './analysis.models';
+import { AnalysisState, METRICS_JOIN_TEXT } from './analysis.models';
 import * as AnalysisActions from './analysis.actions';
 
 export const initialState: AnalysisState = {
   isMetricsLoading: false,
-  isQueriesLoading: false,
   isQueryExecuting: false,
   metrics: [],
   metricsFilter: null,
-  queries: [],
-  queriesFilter: null,
   queryResult: null
 };
 
-// TODO: Analysis query
 const reducer = createReducer(
   initialState,
   on(
     AnalysisActions.actionFetchMetrics,
+    AnalysisActions.actionDeleteMetric,
+    AnalysisActions.actionUpsertMetrics,
     (state) => ({ ...state, isMetricsLoading: true })
   ),
   on(
@@ -26,29 +24,45 @@ const reducer = createReducer(
   ),
   on(
     AnalysisActions.actionFetchMetricsFailure,
+    AnalysisActions.actionDeleteMetricFailure,
+    AnalysisActions.actionUpsertMetricsFailure,
     (state) => ({ ...state, isMetricsLoading: false })
   ),
   on(
-    AnalysisActions.actionFetchQueries,
-    AnalysisActions.actionDeleteQuery,
-    (state) => ({ ...state, isQueriesLoading: true })
+    AnalysisActions.actionDeleteMetricSuccess,
+    (state, { metrics, key }) => {
+      let filteredMetrics;
+      if (key) {
+        filteredMetrics = state.metrics.filter(metric => metric.key !== key.split(METRICS_JOIN_TEXT)[0]);
+      } else {
+        filteredMetrics = state.metrics.map(metric => {
+          if (metric.key === metrics[0].key) {
+            return metrics[0];
+          }
+          return metric;
+        });
+      }
+      return { ...state, metrics: filteredMetrics, isMetricsLoading: false };
+    }
   ),
   on(
-    AnalysisActions.actionFetchQueriesSuccess,
-    (state, { queries }) => ({ ...state, queries, isQueriesLoading: false })
-  ),
-  on(
-    AnalysisActions.actionFetchQueriesFailure,
-    AnalysisActions.actionDeleteQueryFailure,
-    (state) => ({ ...state, isQueriesLoading: false })
+    AnalysisActions.actionUpsertMetricsSuccess,
+    (state, { metrics }) => {
+      const newMetrics = [];
+      metrics.map(metric => {
+        const metricIndex = state.metrics.findIndex(existingMetric => existingMetric.key === metric.key);
+        if (metricIndex !== -1) {
+          state.metrics[metricIndex] = metric;
+        } else {
+          newMetrics.push(metric);
+        }
+      });
+      return { ...state, metrics: [...state.metrics, ...newMetrics], isMetricsLoading: false };
+    }
   ),
   on(
     AnalysisActions.actionSetMetricsFilterValue,
     (state, { filterString }) => ({ ...state, metricsFilter: filterString })
-  ),
-  on(
-    AnalysisActions.actionSetQueriesFilterValue,
-    (state, { filterString }) => ({ ...state, queriesFilter: filterString })
   ),
   on(
     AnalysisActions.actionExecuteQuery,
@@ -61,17 +75,6 @@ const reducer = createReducer(
   on(
     AnalysisActions.actionExecuteQueryFailure,
     (state) => ({ ...state, isQueryExecuting: false })
-  ),
-  on(
-    AnalysisActions.actionSaveQuerySuccess,
-    (state, { query }) => ({ ...state, queries: [ ...state.queries, query ] })
-  ),
-  on(
-    AnalysisActions.actionDeleteQuerySuccess,
-    (state, { query }) => {
-      state.queries = state.queries.filter(data => data.id !== query.id);
-      return ({ ...state, queries: state.queries, isQueriesLoading: false });
-    }
   ),
   on(
     AnalysisActions.actionSetQueryResult,

@@ -54,6 +54,9 @@ export class ViewExperimentComponent implements OnInit, OnDestroy {
     this.experimentSub = this.experimentService.selectedExperiment$
       .pipe(filter(experiment => !!experiment))
       .subscribe(experiment => {
+        if (!this.experiment) {
+          this.experimentService.fetchExperimentDetailStat(experiment.id);
+        }
         this.experiment = experiment;
       });
   }
@@ -97,7 +100,7 @@ export class ViewExperimentComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      // Add code of further actions after deleting experiment
+      // Add code of further actions after opening query modal
     });
   }
 

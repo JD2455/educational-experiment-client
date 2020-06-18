@@ -1,8 +1,9 @@
 import { AppState } from '../../core.module';
-import { OPERATION_TYPES } from 'upgrade_types';
+import { OPERATION_TYPES, IMetricMetaData, IMetricUnit } from 'upgrade_types';
 
 export {
-  OPERATION_TYPES
+  OPERATION_TYPES,
+  IMetricMetaData
 };
 
 export const METRICS_JOIN_TEXT = '@__@';
@@ -10,6 +11,10 @@ export const METRICS_JOIN_TEXT = '@__@';
 export interface MetricUnit {
   key: string;
   children: MetricUnit[];
+}
+
+export interface UpsertMetrics {
+  metricUnit: IMetricUnit[];
 }
 
 export interface Query {
@@ -22,13 +27,9 @@ export interface Query {
 
 export interface AnalysisState {
   isMetricsLoading: boolean;
-  isQueriesLoading: boolean;
   isQueryExecuting: boolean;
   metrics: MetricUnit[];
   metricsFilter: string;
-  // TODO: Analysis query
-  queries: any[];
-  queriesFilter: string;
   queryResult: any;
 }
 

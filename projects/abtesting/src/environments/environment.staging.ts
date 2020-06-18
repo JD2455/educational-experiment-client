@@ -17,6 +17,7 @@ export const environment = {
     getAllAuditLogs: `${endpointApi}/audit`,
     getAllErrorLogs: `${endpointApi}/error`,
     experimentsStats: `${endpointApi}/stats/enrolment`,
+    experimentDetailStat: `${endpointApi}/stats/enrolment/detail`,
     generateCsv: `${endpointApi}/stats/csv`,
     experimentGraphInfo: `${endpointApi}/stats/enrolment/date`,
     deleteExperiment: `${endpointApi}/experiments`,
@@ -36,7 +37,7 @@ export const environment = {
     getPaginatedFlags: `${endpointApi}/flags/paginated`,
     setting: `${endpointApi}/setting`,
     metrics: `${endpointApi}/metric`,
-    query: `${endpointApi}/query`,
+    metricsSave: `${endpointApi}/metric/save`,
     queryResult: `${endpointApi}/query/analyse`
   }
 };
