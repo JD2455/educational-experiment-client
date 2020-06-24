@@ -9,7 +9,6 @@ import {
   Experiment,
   NUMBER_OF_EXPERIMENTS,
   ExperimentPaginationParams,
-  ExperimentGraphDateFilterOptions,
   IExperimentEnrollmentDetailStats
 } from './experiments.model';
 import { Router } from '@angular/router';
@@ -28,7 +27,6 @@ import {
 } from './experiments.selectors';
 import { combineLatest } from 'rxjs';
 import { saveAs } from 'file-saver';
-import { subDays, subMonths, addDays, startOfMonth, set } from 'date-fns';
 
 @Injectable()
 export class ExperimentEffects {
@@ -87,28 +85,38 @@ export class ExperimentEffects {
           switchMap((data: any) => {
             const experiments = data.nodes;
             const experimentIds = experiments.map(experiment => experiment.id);
-            return this.experimentDataService.getAllExperimentsStats(experimentIds).pipe(
-              switchMap((stats: any) => {
-                const experimentStats = stats.reduce(
-                  (acc, stat: IExperimentEnrollmentStats) => ({ ...acc, [stat.id]: stat }),
-                  {}
-                );
-
-                const actions = fromStarting ? [experimentAction.actionSetSkipExperiment({ skipExperiment: 0 })] : [];
-                return [
-                  ...actions,
-                  experimentAction.actionGetExperimentsSuccess({ experiments, totalExperiments: data.total }),
-                  experimentAction.actionStoreExperimentStats({ stats: experimentStats })
-                ];
-              }),
-              catchError(error => [experimentAction.actionGetExperimentsFailure(error)])
-            );
+            const actions = fromStarting ? [experimentAction.actionSetSkipExperiment({ skipExperiment: 0 })] : [];
+            return [
+              ...actions,
+              experimentAction.actionGetExperimentsSuccess({ experiments, totalExperiments: data.total }),
+              experimentAction.actionFetchExperimentStats({ experimentIds })
+            ];
           }),
           catchError(error => [experimentAction.actionGetExperimentsFailure(error)])
         );
       })
     )
   );
+
+  fetchExperimentStatsForHome$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(experimentAction.actionFetchExperimentStats),
+        map(action => action.experimentIds),
+        filter(experimentIds => !!experimentIds.length),
+        switchMap(experimentIds =>
+          this.experimentDataService.getAllExperimentsStats(experimentIds).pipe(
+            map((stats: any) => {
+              const experimentStats = stats.reduce(
+                (acc, stat: IExperimentEnrollmentStats) => ({ ...acc, [stat.id]: stat }),
+                {}
+              );
+              return experimentAction.actionFetchExperimentStatsSuccess({ stats: experimentStats });
+            }),
+            catchError(() => [experimentAction.actionFetchExperimentStatsFailure()])
+          )
+        )
+      )
+  )
 
   UpsertExperiment$ = createEffect(() =>
     this.actions$.pipe(
@@ -127,7 +135,7 @@ export class ExperimentEffects {
               switchMap((experimentStat: IExperimentEnrollmentStats) => {
                 const stats = { ...experimentStats, [data.id]: experimentStat[0] };
                 return [
-                  experimentAction.actionStoreExperimentStats({ stats }),
+                  experimentAction.actionFetchExperimentStatsSuccess({ stats }),
                   experimentAction.actionUpsertExperimentSuccess({ experiment: data }),
                   experimentAction.actionFetchAllPartitions()
                 ];
@@ -187,7 +195,7 @@ export class ExperimentEffects {
                 const stats = { ...experimentStats, [data.id]: stat[0] };
                 return [
                   experimentAction.actionGetExperimentByIdSuccess({ experiment: data }),
-                  experimentAction.actionStoreExperimentStats({ stats })
+                  experimentAction.actionFetchExperimentStatsSuccess({ stats })
                 ];
               })
             )
@@ -248,35 +256,17 @@ export class ExperimentEffects {
         ),
         mergeMap(([{ experimentId, range }, graphData]) => {
           if (!graphData) {
-            let params: any = {
+            const params = {
               experimentId,
-              toDate: new Date().toISOString()
+              dateEnum: range
             };
-            const startDateOfCurrentMonth = addDays(startOfMonth(new Date()), 1);
-            let fromDate;
-            switch (range) {
-              case ExperimentGraphDateFilterOptions.LAST_7_DAYS:
-                fromDate = set(subDays(new Date(), 6), { hours: 0, minutes: 0, seconds: 0 });
-                break;
-              case ExperimentGraphDateFilterOptions.LAST_3_MONTHS:
-                fromDate = subMonths(startDateOfCurrentMonth, 2); // Subtract current Month so 3 - 1 = 2
-                break;
-              case ExperimentGraphDateFilterOptions.LAST_6_MONTHS:
-                fromDate = subMonths(startDateOfCurrentMonth, 5);
-                break;
-              case ExperimentGraphDateFilterOptions.LAST_12_MONTHS:
-                fromDate = subMonths(startDateOfCurrentMonth, 11);
-                break;
-            }
-            params = {
-              ...params,
-              fromDate: fromDate.toISOString()
-            }
+            this.store$.dispatch(experimentAction.actionSetIsGraphLoading({ isGraphInfoLoading: true }));
             return this.experimentDataService.fetchExperimentGraphInfo(params).pipe(
-              map((data: any) => {
-                return experimentAction.actionFetchExperimentGraphInfoSuccess({ range, graphInfo: data })
-              }),
-              catchError(() => [experimentAction.actionFetchExperimentGraphInfoFailure()])
+              map((data: any) =>  experimentAction.actionFetchExperimentGraphInfoSuccess({ range, graphInfo: data.reverse() })),
+              catchError(() => [
+                experimentAction.actionFetchExperimentGraphInfoFailure(),
+                experimentAction.actionSetIsGraphLoading({ isGraphInfoLoading: false })
+              ])
             )
           }
           return [];

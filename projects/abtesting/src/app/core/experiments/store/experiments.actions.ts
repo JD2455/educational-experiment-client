@@ -7,9 +7,9 @@ import {
   EXPERIMENT_SEARCH_KEY,
   EXPERIMENT_SORT_KEY,
   EXPERIMENT_SORT_AS,
-  ExperimentGraphDateFilterOptions,
-  IExperimentDateStat,
-  IExperimentEnrollmentDetailStats
+  IExperimentEnrollmentDetailStats,
+  DATE_RANGE,
+  IEnrollmentStatByDate
 } from './experiments.model';
 
 export const actionGetExperiments = createAction(
@@ -24,7 +24,19 @@ export const actionGetExperimentsSuccess = createAction(
 
 export const actionGetExperimentsFailure = createAction('[Experiment] Get Experiment Failure', props<{ error: any }>());
 
-export const actionStoreExperimentStats = createAction('[Experiment] Store Experiment Stats', props<{ stats: any }>());
+export const actionFetchExperimentStats = createAction(
+  '[Experiment] Fetch Experiment stats',
+  props<{ experimentIds: string[] }>()
+);
+
+export const actionFetchExperimentStatsSuccess = createAction(
+  '[Experiment] Fetch Experiment Stats Success',
+  props<{ stats: any }>()
+);
+
+export const actionFetchExperimentStatsFailure = createAction(
+  '[Experiment] Fetch Experiment Stats Failure'
+);
 
 export const actionRemoveExperimentStat = createAction(
   '[Experiment] Remove Experiment stat',
@@ -143,14 +155,19 @@ export const actionExportExperimentInfoFailure = createAction(
   '[Experiment] Export Experiment Info Failure'
 );
 
+export const actionSetIsGraphLoading = createAction(
+  '[Experiment] Set is Graph Loading',
+  props<{ isGraphInfoLoading: boolean }>()
+);
+
 export const actionFetchExperimentGraphInfo = createAction(
   '[Experiment] Fetch Experiment graph Info',
-  props<{ experimentId: string, range: ExperimentGraphDateFilterOptions }>()
+  props<{ experimentId: string, range: DATE_RANGE }>()
 );
 
 export const actionFetchExperimentGraphInfoSuccess = createAction(
   '[Experiment] Fetch Experiment graph Info Success',
-  props<{ range: ExperimentGraphDateFilterOptions, graphInfo: IExperimentDateStat[] }>()
+  props<{ range: DATE_RANGE, graphInfo: IEnrollmentStatByDate[] }>()
 );
 
 export const actionFetchExperimentGraphInfoFailure = createAction(
@@ -164,7 +181,7 @@ export const actionSetExperimentGraphInfo = createAction(
 
 export const actionSetGraphRange = createAction(
   '[Experiment] Set Graph Range',
-  props<{ range: ExperimentGraphDateFilterOptions, experimentId: string }>()
+  props<{ range: DATE_RANGE, experimentId: string }>()
 );
 
 export const actionFetchExperimentDetailStat = createAction(
