@@ -1,22 +1,23 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PostExperimentRuleComponent } from './post-experiment-rule.component';
+import { ExperimentEndCriteriaComponent } from './experiment-end-criteria.component';
 import { TestingModule } from '../../../../../../../testing/testing.module';
-import { ExperimentService } from '../../../../../../core/experiments/experiments.service';
-import { TestMockData } from '../../../../../../../testing/test.mock.data';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { ExperimentService } from '../../../../../../core/experiments/experiments.service';
+import { OwlNativeDateTimeModule, OwlDateTimeModule } from 'ng-pick-datetime';
+import { TestMockData } from '../../../../../../../testing/test.mock.data';
 
-describe('PostExperimentRuleComponent', () => {
-  let component: PostExperimentRuleComponent;
-  let fixture: ComponentFixture<PostExperimentRuleComponent>;
+describe('ExperimentEndCriteriaComponent', () => {
+  let component: ExperimentEndCriteriaComponent;
+  let fixture: ComponentFixture<ExperimentEndCriteriaComponent>;
 
   const modalData = {
     experiment: TestMockData.getExperiment()[0]
   }
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PostExperimentRuleComponent ],
-      imports: [TestingModule],
+      declarations: [ ExperimentEndCriteriaComponent ],
+      imports: [TestingModule, OwlDateTimeModule, OwlNativeDateTimeModule],
       providers: [
         ExperimentService,
         { provide: MatDialogRef, useValue: {} },
@@ -27,7 +28,7 @@ describe('PostExperimentRuleComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PostExperimentRuleComponent);
+    fixture = TestBed.createComponent(ExperimentEndCriteriaComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
